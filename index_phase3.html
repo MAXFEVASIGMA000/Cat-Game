@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Walk the Cat - Phase 3</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background: #66ccff;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const groundY = 500;
+  let playerX = 100;
+  let playerY = groundY - 48;
+  let kittyCash = 0;
+  let level = 1;
+  let inBossBattle = false;
+  let bossHealth = 100;
+
+  const keys = {};
+  document.addEventListener("keydown", e => keys[e.key] = true);
+  document.addEventListener("keyup", e => keys[e.key] = false);
+
+  const catSprite = new Image();
+  catSprite.src = "https://i.imgur.com/n0U1NfL.png";
+
+  const houseSprite = new Image();
+  houseSprite.src = "https://i.imgur.com/bKpG2lw.png";
+
+  const bossSprite = new Image();
+  bossSprite.src = "https://i.imgur.com/tFUdT3O.png"; // dog boss
+
+  function drawBackground() {
+    ctx.fillStyle = "#66ccff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#2e8b57";
+    ctx.fillRect(0, groundY, canvas.width, 100);
+    ctx.fillStyle = "#cccccc";
+    ctx.fillRect(0, groundY - 20, canvas.width, 20);
+    ctx.drawImage(houseSprite, 600, groundY - 120, 120, 120);
+  }
+
+  function drawCat() {
+    ctx.drawImage(catSprite, playerX, playerY, 48, 48);
+  }
+
+  function drawLeash() {
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(playerX + 20, playerY + 20);
+    ctx.lineTo(playerX - 40, playerY + 10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(playerX - 40, playerY + 10, 6, 0, Math.PI * 2);
+    ctx.fillStyle = "#555";
+    ctx.fill();
+  }
+
+  function drawUI() {
+    ctx.fillStyle = "#000";
+    ctx.font = "20px Courier New";
+    ctx.fillText("Kitty Cash: $" + kittyCash, 20, 30);
+    ctx.fillText("Level: " + level, 20, 60);
+    if (inBossBattle) {
+      ctx.fillText("Boss HP: " + bossHealth, 20, 90);
+    }
+  }
+
+  function drawBoss() {
+    ctx.drawImage(bossSprite, 600, groundY - 120, 96, 96);
+  }
+
+  function updateGame() {
+    if (inBossBattle) {
+      if (keys[" "]) {
+        bossHealth -= 5;
+        keys[" "] = false;
+        kittyCash += 10;
+      }
+      if (bossHealth <= 0) {
+        inBossBattle = false;
+        level++;
+        bossHealth = 100 + level * 10;
+        alert("Boss defeated! Advancing to level " + level);
+      }
+    } else {
+      if (keys["ArrowRight"]) {
+        playerX += 4;
+        kittyCash += 1;
+      }
+      if (keys["ArrowLeft"]) {
+        playerX -= 4;
+        kittyCash = Math.max(0, kittyCash - 1);
+      }
+      if (playerX >= canvas.width - 100) {
+        playerX = 100;
+        inBossBattle = true;
+        alert("A boss appears! Press [space] to attack!");
+      }
+    }
+  }
+
+  function draw() {
+    drawBackground();
+    drawCat();
+    drawLeash();
+    if (inBossBattle) drawBoss();
+    drawUI();
+  }
+
+  function gameLoop() {
+    updateGame();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+
+  gameLoop();
+</script>
+</body>
+</html>
