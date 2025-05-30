@@ -1,1 +1,118 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cat Game - Start</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #222;
+      color: white;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: #111;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let gameState = "menu";
+  let menuOptions = ["🚶 Walk the Cat", "🎰 Kitty Casino"];
+  let selectedIndex = 0;
+
+  // Keyboard input
+  const keys = {};
+  document.addEventListener("keydown", e => keys[e.key] = true);
+  document.addEventListener("keyup", e => keys[e.key] = false);
+
+  function drawMenu() {
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.font = "40px Courier New";
+    ctx.textAlign = "center";
+    ctx.fillText("🐱 Cat World Game", canvas.width / 2, 120);
+
+    ctx.font = "30px Courier New";
+    menuOptions.forEach((option, i) => {
+      if (i === selectedIndex) {
+        ctx.fillStyle = "#ff66cc";
+        ctx.fillText("> " + option, canvas.width / 2, 200 + i * 60);
+      } else {
+        ctx.fillStyle = "white";
+        ctx.fillText(option, canvas.width / 2, 200 + i * 60);
+      }
+    });
+
+    ctx.font = "16px Courier New";
+    ctx.fillStyle = "#aaa";
+    ctx.fillText("Use ↑ ↓ arrows to move, Enter to select", canvas.width / 2, 400);
+  }
+
+  function update() {
+    if (gameState === "menu") {
+      // Menu navigation
+      if (keys["ArrowUp"]) {
+        selectedIndex = (selectedIndex + menuOptions.length - 1) % menuOptions.length;
+        keys["ArrowUp"] = false;
+      }
+      if (keys["ArrowDown"]) {
+        selectedIndex = (selectedIndex + 1) % menuOptions.length;
+        keys["ArrowDown"] = false;
+      }
+      if (keys["Enter"]) {
+        const selected = menuOptions[selectedIndex];
+        if (selected.includes("Walk")) {
+          gameState = "walk";
+        } else if (selected.includes("Casino")) {
+          gameState = "casino";
+        }
+        keys["Enter"] = false;
+      }
+    }
+
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  function draw() {
+    if (gameState === "menu") {
+      drawMenu();
+    } else if (gameState === "walk") {
+      drawWalkMode();
+    } else if (gameState === "casino") {
+      drawCasinoMode();
+    }
+  }
+
+  function drawWalkMode() {
+    ctx.fillStyle = "#88ccff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#000";
+    ctx.font = "40px Courier New";
+    ctx.fillText("WALK THE CAT - TBD", canvas.width / 2, canvas.height / 2);
+  }
+
+  function drawCasinoMode() {
+    ctx.fillStyle = "#222";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffcc00";
+    ctx.font = "40px Courier New";
+    ctx.fillText("KITTY CASINO - TBD", canvas.width / 2, canvas.height / 2);
+  }
+
+  update();
+</script>
+</body>
+</html>
